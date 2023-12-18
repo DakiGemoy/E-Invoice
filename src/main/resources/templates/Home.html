@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout/base-layout :: head}"></head>
+<body>
+    <div class="container">
+        <nav th:replace="~{layout/base-layout :: nav}"></nav>
+        <div class="header-main">
+            <header th:replace="~{layout/base-layout :: header}">Ini header</header>
+            <main>Selamat datang</main>
+        </div>
+    </div>
+</body>
+</html>

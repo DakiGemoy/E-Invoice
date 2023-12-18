@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layout/base-layout :: head}"></head>
+<body>
+<div class="container">
+    <nav th:replace="~{layout/base-layout :: nav}"></nav>
+    <div class="header-main">
+        <header th:replace="~{layout/base-layout :: header}"></header>
+        <main>
+            <form method="Get" class="search-bar" id="search-form">
+                <input type="text" name="clientName" placeholder="Client Name"/>
+
+                <button type="submit" class="green-button">Search</button>
+                <button id="create-button" class="blue-button" onclick="openForm()"> Create </button>
+            </form>
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <td>Client Code</td>
+                        <td>Client Name</td>
+                        <td>Address</td>
+                        <td colspan="2">Action</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal" id="modal-popup">
+                <form id="client-upsert" action="#" class="modal-form">
+                    <label>Code</label>
+                    <input name="clientCode" type="text" placeholder="Client Code" required/>
+                    <label>Name</label>
+                    <input name="clientName" type="text" placeholder="Client Name" required/>
+                    <label>Address</label>
+                    <textarea name="clientAddress" cols="10" rows="3" placeholder="Address"></textarea>
+                    <label>Email</label>
+                    <input name="clientEmail" type="text" placeholder="Client Email" required/>
+                    <label>Phone Number</label>
+                    <input name="clientPhone" type="text" placeholder="Phone Number" />
+
+                    <button type="submit" class="green-button">Submit</button>
+                    <a
+                        id="close-button"
+                        onclick="closeForm()"
+                        class="red-button">
+                        Close
+                    </a>
+                </form>
+            </div>
+            <div th:replace="~{layout/base-layout :: notification}" class="notif" id="notif"></div>
+        </main>
+    </div>
+
+    <script th:replace="~{layout/base-layout :: script-file}"></script>
+</div>
+</body>
+</html>
