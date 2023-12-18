@@ -1,22 +1,21 @@
 package co.id.Asset.eInvoice.Controller.RestController;
 
 import co.id.Asset.eInvoice.Model.BaseResponse;
+import co.id.Asset.eInvoice.Model.InvoiceUpsert;
 import co.id.Asset.eInvoice.Service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api//invoice")
+@RequestMapping("api/invoice")
 public class RestInvoiceController {
+
     @Autowired
     private InvoiceService invoiceService;
 
-    @GetMapping("/create")
-    public BaseResponse createInvoice(@RequestParam String clientCode){
-        return invoiceService.createInvoice(clientCode);
+    @GetMapping("/generate")
+    public BaseResponse generateInvoiceNumber(@RequestParam String clientCode){
+        return invoiceService.invoiceNumberGenerator(clientCode);
     }
 
     @GetMapping("/list")
@@ -24,5 +23,15 @@ public class RestInvoiceController {
                                              @RequestParam(defaultValue = "") String spkNumber,
                                              @RequestParam(defaultValue = "1") String page ){
         return invoiceService.getPagingInvoice(invoiceNumber,spkNumber,Integer.valueOf(page));
+    }
+
+    @PostMapping("/save-invoice")
+    public BaseResponse createInvoice(@RequestBody InvoiceUpsert payload){
+        return invoiceService.saveInvoice(payload);
+    }
+
+    @GetMapping("/get-invoice/{invoiceNo}")
+    public BaseResponse getInvoice(@PathVariable String invoiceNo){
+        return invoiceService.getInvoice(invoiceNo);
     }
 }

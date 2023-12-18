@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
@@ -15,9 +17,8 @@ public class InvoiceUpsert {
     private String notes;
     private String clientCode;
     private LocalDate dueDate;
-    private Boolean status;
-    private LocalDate createdDate;
+    private Boolean status = true; //default status is drafting
+    private LocalDateTime createdDate;
     private String createdBy;
-    private LocalDate updatedDate;
-    private String updatedBy;
+    private List<Item> desc;
 }

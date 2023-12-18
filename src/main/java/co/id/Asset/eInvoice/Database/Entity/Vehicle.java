@@ -26,7 +26,4 @@ public class Vehicle {
     @Column(name = "rent_period")
     private String rentPeriod;
 
-    @Column(name = "price")
-    private Double price;
-
 }

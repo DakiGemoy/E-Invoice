@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "DesciprtionList")
+@Table(name = "DescriptionList")
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Description {
@@ -21,10 +21,21 @@ public class Description {
     @Column(name = "vehicle_id")
     private Integer vehicleId;
 
+    @Column(name = "price")
+    private Double price;
+
     @Column(name = "rent_from")
     private LocalDate rentFrom;
 
     @Column(name = "rent_to")
     private LocalDate rentTo;
+
+    public Description(String invoiceNumber, Integer vehicleId,
+                       LocalDate rentFrom, LocalDate rentTo) {
+        this.invoiceNumber = invoiceNumber;
+        this.vehicleId = vehicleId;
+        this.rentTo = rentTo;
+        this.rentFrom = rentFrom;
+    }
 
 }

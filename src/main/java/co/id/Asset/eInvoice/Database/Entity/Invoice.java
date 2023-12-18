@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +28,7 @@ public class Invoice {
     private String clientCode;
 
     @Column(name = "due_date")
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
 
     @Column(name = "is_draft")
     private Boolean isDraft;
@@ -43,5 +44,15 @@ public class Invoice {
 
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    public Invoice(String invoiceNumber, String spkNumber, String notes,
+                   String clientCode, LocalDate dueDate, Boolean isDraft){
+        this.invoiceNumber = invoiceNumber;
+        this.spkNumber = spkNumber;
+        this.notes = notes;
+        this.clientCode = clientCode;
+        this.dueDate = dueDate;
+        this.isDraft = isDraft;
+    }
 
 }

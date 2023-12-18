@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, String> {
     @Query(value = """
@@ -27,4 +28,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
             AND spk_number LIKE %:spkNum% """, nativeQuery = true)
     Integer countPaging(@Param("invNum") String invoiceNumber,
                         @Param("spkNum") String spkNumber);
+
+    Optional<Invoice> findByInvoiceNumber(String invoiceNumber);
 }

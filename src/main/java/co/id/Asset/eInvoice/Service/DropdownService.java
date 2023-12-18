@@ -50,7 +50,7 @@ public class DropdownService {
         var listVehicle = vehicleRepository.findAll();
 
         for(var v : listVehicle){
-            dropdownModels.add(new DropdownModel(v.getType(),v.getId()));
+            dropdownModels.add(new DropdownModel(v.getType()+"-"+v.getUniqueNumber(),v.getId()));
         }
 
         return new BaseResponse(200,"Success",null,dropdownModels) ;
