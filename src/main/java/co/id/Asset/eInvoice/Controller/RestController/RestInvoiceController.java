@@ -1,6 +1,8 @@
 package co.id.Asset.eInvoice.Controller.RestController;
 
+import co.id.Asset.eInvoice.Database.Entity.Description;
 import co.id.Asset.eInvoice.Model.BaseResponse;
+import co.id.Asset.eInvoice.Model.CarRequest;
 import co.id.Asset.eInvoice.Model.InvoiceUpsert;
 import co.id.Asset.eInvoice.Service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +20,35 @@ public class RestInvoiceController {
         return invoiceService.invoiceNumberGenerator(clientCode);
     }
 
-    @GetMapping("/list")
-    public BaseResponse getPaginationInvoice(@RequestParam(defaultValue = "") String invoiceNumber,
-                                             @RequestParam(defaultValue = "") String spkNumber,
-                                             @RequestParam(defaultValue = "1") String page ){
-        return invoiceService.getPagingInvoice(invoiceNumber,spkNumber,Integer.valueOf(page));
-    }
-
     @PostMapping("/save-invoice")
     public BaseResponse createInvoice(@RequestBody InvoiceUpsert payload){
         return invoiceService.saveInvoice(payload);
     }
 
-    @GetMapping("/get-invoice/{invoiceNo}")
-    public BaseResponse getInvoice(@PathVariable String invoiceNo){
-        return invoiceService.getInvoice(invoiceNo);
+    @GetMapping("/get-invoice")
+    public BaseResponse getInvoice(@RequestParam(defaultValue = "") String invoiceNumber){
+        return invoiceService.getInvoice(invoiceNumber);
     }
+
+    @PostMapping("/add-car")
+    public BaseResponse addCarToInvoice(@RequestBody CarRequest carRequest){
+        return invoiceService.saveCarToInvoice(carRequest);
+    }
+
+    @GetMapping("/check")
+    public Boolean checkInvoice(@RequestParam String invoiceNumber){
+        return invoiceService.checkInvoiceNumber(invoiceNumber);
+    }
+
+    @GetMapping("/get-desc")
+    public BaseResponse  getDescription(@RequestParam Long descId){
+        return invoiceService.getDescById(descId);
+    }
+
+    @DeleteMapping("/delete-desc")
+    public BaseResponse deleteDescription(@RequestParam Long descId){
+        return invoiceService.deleteDescription(descId);
+    }
+
+
 }

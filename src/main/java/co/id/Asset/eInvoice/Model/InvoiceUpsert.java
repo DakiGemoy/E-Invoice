@@ -1,5 +1,6 @@
 package co.id.Asset.eInvoice.Model;
 
+import co.id.Asset.eInvoice.Database.Entity.Description;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

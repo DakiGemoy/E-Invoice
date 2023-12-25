@@ -7,11 +7,13 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter @Setter
-public class Item {
-    private Long id;
-    private String vehicle;
+public class CarRequest {
+    private Long descId;
+    private String invoiceNumber;
+    private Integer vehicleId;
     private LocalDate rentFrom;
     private LocalDate rentTo;
     private Double price;

@@ -31,11 +31,12 @@ public class Description {
     private LocalDate rentTo;
 
     public Description(String invoiceNumber, Integer vehicleId,
-                       LocalDate rentFrom, LocalDate rentTo) {
+                       LocalDate rentFrom, LocalDate rentTo, Double price) {
         this.invoiceNumber = invoiceNumber;
         this.vehicleId = vehicleId;
         this.rentTo = rentTo;
         this.rentFrom = rentFrom;
+        this.price = price;
     }
 
 }
