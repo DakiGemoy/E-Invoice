@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>co.id.Asset</groupId>
 	<artifactId>eInvoice</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>eInvoice</name>
 	<description>Web app for electronic invoicing</description>
 	<properties>
