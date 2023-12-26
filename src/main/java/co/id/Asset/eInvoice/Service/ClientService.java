@@ -14,22 +14,22 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public BaseResponse saveClientInsert(ClientInput payload){
-        Client client = null;
-
-        if(clientRepository.existsByClientCode(payload.getCode())){
-            return new BaseResponse(400,"BAD REQUEST","Client is already exists",null);
-        } else {
-            client = new Client(payload.getCode(), payload.getName(), payload.getAddress(),payload.getRegionId(), payload.getEmail(), payload.getPhone());
-        }
-
-        try {
-            clientRepository.save(client);
-            return new BaseResponse(200,"Succes save client",null,null);
-        } catch (Exception e){
-            return new BaseResponse(500, "INTERNAL SERVER ERROR","e.getMessage()",null);
-        }
-    }
+//    public BaseResponse saveClientInsert(ClientInput payload){
+//        Client client = null;
+//
+//        if(clientRepository.existsByClientCode(payload.getCode())){
+//            return new BaseResponse(400,"BAD REQUEST","Client is already exists",null);
+//        } else {
+//            client = new Client(payload.getCode(), payload.getName(), payload.getAddress(),payload.getRegionId(), payload.getEmail(), payload.getPhone());
+//        }
+//
+//        try {
+//            clientRepository.save(client);
+//            return new BaseResponse(200,"Succes save client",null,null);
+//        } catch (Exception e){
+//            return new BaseResponse(500, "INTERNAL SERVER ERROR","e.getMessage()",null);
+//        }
+//    }
 
     public BaseResponse getClient(String clientCode){
         var c = clientRepository.findById(clientCode);

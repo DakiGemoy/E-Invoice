@@ -28,6 +28,8 @@ public class InvoiceService {
     private DescriptionRepository descriptionRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
+    @Autowired
+    private DsoClientRepository dsoClientRepository;
 
     public BaseResponse getPagingInvoice(String search,
                                          Integer page){
@@ -75,16 +77,16 @@ public class InvoiceService {
         }
     }
 
-    public BaseResponse invoiceNumberGenerator(String clientCode){
+    public BaseResponse invoiceNumberGenerator(Integer dsoId){
 //        no - invoice = 00+nomor invoice( auto increment)+'/'+kode kantor+'/'+kode client+'/'+Kode Wilayah Client+'/'+bulan dalam angka+'/'+tahun
         var counter = (int) invoiceRepository.count();
-        var client = clientRepository.findById(clientCode).orElseThrow(
-                ()-> new EntityNotFoundException("Client not found"));
-        var region = masterRegionRepository.findById(client.getRegionId()).orElseThrow(
+        var dsoClient = dsoClientRepository.findById(dsoId)
+                .orElseThrow(()->new EntityNotFoundException("Dso Not found : "+dsoId));
+        var region = masterRegionRepository.findById(dsoClient.getRegionId()).orElseThrow(
                 ()-> new EntityNotFoundException("Region not found"));
         counter++;
 
-        String stringFormat = String.format("%05d",counter)+"/BGK/"+clientCode+"/"+region.getRegionShort()+"/"
+        String stringFormat = String.format("%05d",counter)+"/BGK/"+dsoClient.getClientCode()+"/"+region.getRegionShort()+"/"
                 + LocalDate.now().getMonthValue()+"/"+LocalDate.now().getYear();
         return new BaseResponse(200,"Success",null,stringFormat);
     }
@@ -96,7 +98,7 @@ public class InvoiceService {
 
         if(load.isEmpty()){
             inv = new Invoice(payload.getInvoiceNumber(), payload.getSpkNumber(),
-                payload.getNotes(), payload.getClientCode(),
+                payload.getNotes(), payload.getDsoClientId(),
                 payload.getDueDate(), payload.getStatus());
             inv.setCreatedBy(payload.getCreatedBy());
             inv.setCreatedDate(LocalDateTime.now());
@@ -142,7 +144,7 @@ public class InvoiceService {
             }
 
             InvoiceUpsert getUpdate = new InvoiceUpsert(invoice.getInvoiceNumber(), invoice.getSpkNumber(),
-                    invoice.getNotes(),invoice.getClientCode(),invoice.getDueDate(),
+                    invoice.getNotes(),invoice.getClientDsoId(),invoice.getDueDate(),
                     invoice.getIsDraft(),invoice.getCreatedDate(),invoice.getCreatedBy(), item);
 
             return new BaseResponse(200,"Ok",null, getUpdate);
@@ -173,7 +175,7 @@ public class InvoiceService {
         return new BaseResponse(200,"Success save data",null,null);
     }
 
-    public BaseResponse getDescById(Long descId){
+    public BaseResponse getDescById(Integer descId){
         return new BaseResponse(200,"Success get Desc",null,descriptionRepository.findById(descId).orElseThrow(
                 ()->new EntityNotFoundException("Description not found : "+descId)));
     }
@@ -187,7 +189,7 @@ public class InvoiceService {
         }
     }
 
-    public BaseResponse deleteDescription(Long descId){
+    public BaseResponse deleteDescription(Integer descId){
         try {
             descriptionRepository.deleteById(descId);
             return new BaseResponse(200,"Success delete description",null,null);

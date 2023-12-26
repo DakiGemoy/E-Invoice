@@ -1,6 +1,7 @@
 package co.id.Asset.eInvoice.Service;
 
 import co.id.Asset.eInvoice.Database.Repository.ClientRepository;
+import co.id.Asset.eInvoice.Database.Repository.DsoClientRepository;
 import co.id.Asset.eInvoice.Database.Repository.MasterRegionRepository;
 import co.id.Asset.eInvoice.Database.Repository.VehicleRepository;
 import co.id.Asset.eInvoice.Model.BaseResponse;
@@ -19,6 +20,8 @@ public class DropdownService {
     private MasterRegionRepository masterRegionRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
+    @Autowired
+    private DsoClientRepository dsoClientRepository;
 
     public BaseResponse dropdownClient(){
         List<DropdownModel> dropdownModels = new ArrayList<>();
@@ -54,5 +57,17 @@ public class DropdownService {
         }
 
         return new BaseResponse(200,"Success",null,dropdownModels) ;
+    }
+
+    public BaseResponse dropdownDso(String clientCode){
+        List<DropdownModel> dropdownModels = new ArrayList<>();
+
+        var listDso = dsoClientRepository.findByClientCode(clientCode);
+
+        for(var d : listDso){
+            dropdownModels.add(new DropdownModel(d.getRegionObj().getRegionName(),d.getId()));
+        }
+
+        return new BaseResponse(200,"Success",null,dropdownModels);
     }
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter @Setter
 public class CarRequest {
-    private Long descId;
+    private Integer descId;
     private String invoiceNumber;
     private Integer vehicleId;
     private LocalDate rentFrom;

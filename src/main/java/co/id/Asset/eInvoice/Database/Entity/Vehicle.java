@@ -23,7 +23,4 @@ public class Vehicle {
     @Column(name = "vehicle_type")
     private String type;
 
-    @Column(name = "rent_period")
-    private String rentPeriod;
-
 }

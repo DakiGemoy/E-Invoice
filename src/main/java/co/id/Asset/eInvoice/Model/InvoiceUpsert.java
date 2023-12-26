@@ -16,7 +16,7 @@ public class InvoiceUpsert {
     private String invoiceNumber;
     private String spkNumber;
     private String notes;
-    private String clientCode;
+    private Integer dsoClientId;
     private LocalDate dueDate;
     private Boolean status = true; //default status is drafting
     private LocalDateTime createdDate;

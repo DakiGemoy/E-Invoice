@@ -1,6 +1,5 @@
 package co.id.Asset.eInvoice.Controller.RestController;
 
-import co.id.Asset.eInvoice.Database.Entity.Description;
 import co.id.Asset.eInvoice.Model.BaseResponse;
 import co.id.Asset.eInvoice.Model.CarRequest;
 import co.id.Asset.eInvoice.Model.InvoiceUpsert;
@@ -16,8 +15,8 @@ public class RestInvoiceController {
     private InvoiceService invoiceService;
 
     @GetMapping("/generate")
-    public BaseResponse generateInvoiceNumber(@RequestParam String clientCode){
-        return invoiceService.invoiceNumberGenerator(clientCode);
+    public BaseResponse generateInvoiceNumber(@RequestParam Integer dsoId){
+        return invoiceService.invoiceNumberGenerator(dsoId);
     }
 
     @PostMapping("/save-invoice")
@@ -41,14 +40,13 @@ public class RestInvoiceController {
     }
 
     @GetMapping("/get-desc")
-    public BaseResponse  getDescription(@RequestParam Long descId){
+    public BaseResponse  getDescription(@RequestParam Integer descId){
         return invoiceService.getDescById(descId);
     }
 
     @DeleteMapping("/delete-desc")
-    public BaseResponse deleteDescription(@RequestParam Long descId){
+    public BaseResponse deleteDescription(@RequestParam Integer descId){
         return invoiceService.deleteDescription(descId);
     }
-
 
 }

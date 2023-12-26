@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Item {
-    private Long id;
+    private Integer id;
     private String vehicle;
     private LocalDate rentFrom;
     private LocalDate rentTo;

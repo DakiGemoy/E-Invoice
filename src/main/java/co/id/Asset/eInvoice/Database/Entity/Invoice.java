@@ -24,8 +24,12 @@ public class Invoice {
     @Column(name = "notes")
     private String notes;
 
-    @Column(name = "client_code")
-    private String clientCode;
+    @Column(name = "client_dso_id")
+    private Integer clientDsoId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_dso_id",insertable = false, updatable = false)
+    private DsoClient clientDsoObj;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
@@ -46,11 +50,11 @@ public class Invoice {
     private LocalDateTime updateDate;
 
     public Invoice(String invoiceNumber, String spkNumber, String notes,
-                   String clientCode, LocalDate dueDate, Boolean isDraft){
+                   Integer clientDsoId, LocalDate dueDate, Boolean isDraft){
         this.invoiceNumber = invoiceNumber;
         this.spkNumber = spkNumber;
         this.notes = notes;
-        this.clientCode = clientCode;
+        this.clientDsoId = clientDsoId;
         this.dueDate = dueDate;
         this.isDraft = isDraft;
     }

@@ -13,10 +13,10 @@ public class RestClientController {
     @Autowired
     private ClientService clientService;
 
-    @PostMapping("/insert")
-    public BaseResponse saveClient(@RequestBody ClientInput payload){
-        return clientService.saveClientInsert(payload);
-    }
+//    @PostMapping("/insert")
+//    public BaseResponse saveClient(@RequestBody ClientInput payload){
+//        return clientService.saveClientInsert(payload);
+//    }
 
     @GetMapping("/getupdate/{clientCode}")
     public BaseResponse getClient(@PathVariable String clientCode){

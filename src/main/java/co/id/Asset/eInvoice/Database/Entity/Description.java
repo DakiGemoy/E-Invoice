@@ -13,13 +13,21 @@ public class Description {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "invoice")
     private String invoiceNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice",insertable = false, updatable = false)
+    private Invoice invoiceObj;
+
     @Column(name = "vehicle_id")
     private Integer vehicleId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id",insertable = false, updatable = false)
+    private Vehicle vehicleObj;
 
     @Column(name = "price")
     private Double price;
