@@ -40,13 +40,24 @@ public class RestInvoiceController {
     }
 
     @GetMapping("/get-desc")
-    public BaseResponse  getDescription(@RequestParam Integer descId){
+    public BaseResponse getDescription(@RequestParam Integer descId){
         return invoiceService.getDescById(descId);
     }
 
     @DeleteMapping("/delete-desc")
     public BaseResponse deleteDescription(@RequestParam Integer descId){
         return invoiceService.deleteDescription(descId);
+    }
+
+    @GetMapping("/list")
+    public BaseResponse listInvoice(@RequestParam(defaultValue = "") String search,
+                                    @RequestParam(defaultValue = "1") Integer page){
+        return invoiceService.getPagingInvoice(search, page);
+    }
+
+    @DeleteMapping("/delete-invoice")
+    public BaseResponse deleteInvoice(@RequestParam String invoiceNumber){
+        return invoiceService.deleteInvoice(invoiceNumber);
     }
 
 }

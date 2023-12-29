@@ -1,5 +1,6 @@
 package co.id.Asset.eInvoice.Database.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class DsoClient {
     @Column(name = "client_code")
     private String clientCode;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_code",insertable = false, updatable = false)
     private Client clientObj;
@@ -26,6 +28,7 @@ public class DsoClient {
     @Column(name = "region_id")
     private Integer regionId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id",insertable = false, updatable = false)
     private MasterRegion regionObj;

@@ -5,7 +5,11 @@ import co.id.Asset.eInvoice.Database.Entity.Invoice;
 import co.id.Asset.eInvoice.Database.Handler.InvoiceNotFoundException;
 import co.id.Asset.eInvoice.Database.Repository.*;
 import co.id.Asset.eInvoice.Model.*;
+import co.id.Asset.eInvoice.Util.EmailType;
+import co.id.Asset.eInvoice.Util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -30,21 +34,37 @@ public class InvoiceService {
     private VehicleRepository vehicleRepository;
     @Autowired
     private DsoClientRepository dsoClientRepository;
+    @Autowired
+    private EmailService emailService;
 
     public BaseResponse getPagingInvoice(String search,
                                          Integer page){
         Integer limit = 5;
-        Integer setFetch = 0;
-        if(page != 1){
-            setFetch = (page-1) * limit;
+
+        Pageable pageable = PageRequest.of(page-1,limit);
+        List<InvoiceSummary> summaries = new ArrayList<>();
+        var invoices = invoiceRepository.getPagination(search, pageable);
+
+        for(var inv : invoices){
+            var descs = descriptionRepository.findByInvoiceNumber(inv.getInvoiceNumber());
+
+            summaries.add(new InvoiceSummary(inv, sumPriceOfInvoice(descs)));
         }
 
-        var list = invoiceRepository.getListInvoicePagination(search,setFetch,limit);
         var totalData = (double) invoiceRepository.countPaging(search);
         Long totalPage = (long) Math.ceil(totalData/limit);
-        PaginationResponse response = new PaginationResponse(list,page,totalPage);
+        PaginationResponse response = new PaginationResponse(summaries,page,totalPage);
 
         return new BaseResponse(200,"Success",null,response);
+    }
+
+    private Double sumPriceOfInvoice(List<Description> descriptionList){
+        Double ret = Double.valueOf(0);
+        for (var d : descriptionList){
+            ret = ret + d.getPrice();
+        }
+
+        return ret;
     }
 
     public List<Invoice> getInvoicePagingModel(String search,
@@ -123,6 +143,20 @@ public class InvoiceService {
             } catch (Exception e){
                 return new BaseResponse(500,"INTERNAL SERVER ERROR","Error while update invoice to database with message : "+e.getMessage(),null);
             }
+
+            if(!load.get().getIsDraft()){
+                var descs = descriptionRepository.findByInvoiceNumber(payload.getInvoiceNumber());
+                InvoiceSummary invoiceSummary = new InvoiceSummary(inv);
+                invoiceSummary.setAmount(sumPriceOfInvoice(descs));
+
+                EmailRequest emailRequest = new EmailRequest();
+                var dso = dsoClientRepository.findById(load.get().getClientDsoId()).get();
+                emailRequest.setRecipient(dso.getEmail());
+                emailRequest.setSubject("Pemberitahuan Invoice "+dso.getClientObj().getClientName());
+                emailRequest.setMsgBody(Util.generateEmailMessage(EmailType.NOTIFICATION, invoiceSummary,
+                                        dso, descs));
+                emailService.sendSimpleMail(emailRequest);
+            }
         }
 
         return new BaseResponse(200,"Success save data",null,null);
@@ -195,6 +229,30 @@ public class InvoiceService {
             return new BaseResponse(200,"Success delete description",null,null);
         } catch (Exception e){
             throw new RuntimeException("Error while delete description : "+descId);
+        }
+     }
+
+     public BaseResponse deleteInvoice(String invoiceNumber){
+        var invoice = invoiceRepository.findById(invoiceNumber)
+                .orElseThrow(()->new EntityNotFoundException("Invoice number not found : "+invoiceNumber));
+
+        if(!invoice.getIsDraft())
+            return new BaseResponse(400,"Data can't be delete",null,null);
+
+        var desc = descriptionRepository.findByInvoiceNumber(invoiceNumber);
+        for(var d : desc){
+            try {
+                descriptionRepository.delete(d);
+            } catch (Exception e){
+                throw new RuntimeException("Error while delete description : "+d.getId()+" - "+invoiceNumber);
+            }
+        }
+
+        try {
+            invoiceRepository.deleteById(invoiceNumber);
+            return new BaseResponse(200, "Success delete invoice",null,null);
+        } catch (Exception e){
+            throw new RuntimeException("Error while delete invoice : "+invoiceNumber);
         }
      }
 }

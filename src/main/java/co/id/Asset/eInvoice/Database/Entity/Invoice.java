@@ -1,5 +1,6 @@
 package co.id.Asset.eInvoice.Database.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,8 @@ public class Invoice {
     @Column(name = "client_dso_id")
     private Integer clientDsoId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER  )
     @JoinColumn(name = "client_dso_id",insertable = false, updatable = false)
     private DsoClient clientDsoObj;
 

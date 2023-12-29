@@ -1,5 +1,6 @@
 package co.id.Asset.eInvoice.Database.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,14 +19,16 @@ public class Description {
     @Column(name = "invoice")
     private String invoiceNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "invoice",insertable = false, updatable = false)
     private Invoice invoiceObj;
 
     @Column(name = "vehicle_id")
     private Integer vehicleId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id",insertable = false, updatable = false)
     private Vehicle vehicleObj;
 

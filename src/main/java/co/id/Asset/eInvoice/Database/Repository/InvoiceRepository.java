@@ -1,6 +1,7 @@
 package co.id.Asset.eInvoice.Database.Repository;
 
 import co.id.Asset.eInvoice.Database.Entity.Invoice;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
     Optional<Invoice> findByInvoiceNumber(String invoiceNumber);
 
     Boolean existsByInvoiceNumber(String invoiceNumber);
+
+    @Query(value = """
+            SELECT * 
+            FROM Invoice 
+            WHERE invoice_number LIKE %:search% 
+            OR spk_number LIKE %:search%
+            """, nativeQuery = true)
+    List<Invoice> getPagination(@Param("search") String search,
+                                       Pageable pageable);
 }
