@@ -25,9 +25,14 @@
                             disabled
                     />
                     <label>Client</label>
-                    <select name="clientCode" id="clientCode">
-                        <option disabled selected>Client</option>
-                    </select>
+                    <div class="clientBox">
+                        <select name="clientCode" id="clientCode">
+                            <option disabled selected>Client</option>
+                        </select>
+                        <select name="dsoClient" disabled>
+                            <option disabled selected>DSO Client</option>
+                        </select>
+                    </div>
                     <label>SPK Number</label>
                     <input
                             name="spkNum"
@@ -50,12 +55,14 @@
                         <br />
                     </label>
 
-                    <button type="submit" class="blue-button">Save</button>
-                    <a th:href="@{/home/dashboard}" class="red-button">Back</a>
+                    <button id="submit-button-invoice"
+                            type="submit" class="blue-button">Save</button>
+                    <a th:href="@{/home/dashboard}" class="red-button"
+                       id="back-button">Back</a>
                 </form>
             </div>
 
-            <div class="separator">
+            <div class="separator" id="add-car">
                  <a class="green-button" onclick="openForm()">Add Car</a>
             </div>
 
@@ -73,14 +80,14 @@
                     <tbody></tbody>
                     <tfoot>
                     <tr>
-                        <td colspan="6" class="tableFooter">Ini Footer Pagination</td>
+                        <td colspan="6"></td>
                     </tr>
                     </tfoot>
                 </table>
             </div>
 
             <div class="modal" id="modal-popup">
-                <form id="car-insert" class="modal-form">
+                <form id="car-insert" action="#" class="modal-form">
                     <label>Desc Id</label>
                     <input
                             type="number"
@@ -98,7 +105,9 @@
                     <input type="date" name="rent-to" required />
                     <label>Price</label>
                     <input type="number" name="price" required />
-                    <button type="submit" class="green-button">Submit</button>
+                    <button type="submit" class="green-button" id="button-submit-car">
+                        Submit
+                    </button>
                     <a id="close-button" onclick="closeForm()" class="red-button">
                         Close
                     </a>

@@ -31,7 +31,7 @@ public class RestDropdownController {
     }
 
     @GetMapping("/vehicle")
-    public BaseResponse getDropdownVehicle(){
-        return dropdownService.dropdownVehicle();
+    public BaseResponse getDropdownVehicle(@RequestParam(defaultValue = "") String search){
+        return dropdownService.dropdownVehicle(search);
     }
 }

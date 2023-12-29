@@ -125,6 +125,17 @@ main {
   background-color: rgb(247, 242, 242);
 }
 
+.clientBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: first baseline;
+  gap: 10px;
+}
+
+.clientBox > select {
+  width: 100%;
+}
+
 .separator {
   display: flex;
   flex-direction: row;
@@ -256,6 +267,29 @@ tbody > tr:nth-child(odd) {
 
 tbody > tr:nth-child(even) {
   background-color: rgb(95, 89, 89);
+}
+
+.page-number {
+  padding: 2px;
+  border: 1px solid black;
+  border-radius: 3px;
+  background-color: rgb(183, 182, 182);
+  font-weight: bold;
+  font-size: small;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.page-number:hover {
+  background-color: rgb(128, 128, 128);
+}
+
+.active {
+  background-color: white;
+}
+
+.active:hover {
+  background: white;
 }
 
 .modal {

@@ -35,7 +35,7 @@ function initData(invoiceNumber) {
 
 function setDataToFormInvoice(dataForm) {
   document.querySelector("input[name=invoice]").value = dataForm.invoiceNumber;
-  loadDropdownClientExists(dataForm.clientCode);
+  getClient(dataForm.dsoClientId);
   document.querySelector("select[name=clientCode]").disabled = true;
   document.querySelector("input[name=spkNum]").value = dataForm.spkNumber;
   document.querySelector("textarea[name=notes]").value = dataForm.notes;
@@ -50,9 +50,24 @@ function setDataToFormInvoice(dataForm) {
     document.querySelector("input[name=spkNum]").disabled = true;
     document.querySelector("textArea[name=notes]").disabled = true;
     document.querySelector("input[name=dueDate]").disabled = true;
+
+    document.getElementById("submit-button-invoice").style = "display : none";
+    document.getElementById("back-button").style = "grid-column : 1/3 ";
+    document.getElementById("add-car").style = "display : none";
   }
 
-  cetakTableDescription(dataForm.desc, dataForm.invoiceNumber, dataForm.status);
+  cetakTableInvoice(dataForm.desc, dataForm.invoiceNumber, dataForm.status);
+}
+
+function getClient(dsoId) {
+  fetch(baseEndpointUrl + "/client/getClientByDso?dsoId=" + dsoId, {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      loadDropdownClientExists(data.data);
+      loadDropdownDsoExists(data.data, dsoId);
+    });
 }
 
 function openForm() {
@@ -134,6 +149,20 @@ function loadDropdownClient() {
     });
 }
 
+function loadDropdownDsoExists(clientCode, dsoId) {
+  fetch(baseEndpointUrl + "/dropdown/dsoClient?clientCode=" + clientCode, {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      createDropdown(
+        data.data,
+        document.querySelector("select[name=dsoClient]"),
+        dsoId
+      );
+    });
+}
+
 function loadDropdownCar() {
   fetch(baseEndpointUrl + "/dropdown/vehicle", {
     method: "GET",
@@ -190,7 +219,7 @@ document
     event.preventDefault();
 
     var invoice = document.querySelector("input[name=invoice]").value;
-    var client = document.querySelector("select[name=clientCode]").value;
+    var dsoClient = document.querySelector("select[name=dsoClient]").value;
     var spk = document.querySelector("input[name=spkNum]").value;
     var notes = document.querySelector("textarea[name=notes]").value;
     var duedate = document.querySelector("input[name=dueDate]").value;
@@ -201,7 +230,7 @@ document
       invoiceNumber: invoice,
       spkNumber: spk,
       notes: notes,
-      clientCode: client,
+      dsoClientId: dsoClient,
       dueDate: duedate,
       status: status,
       createdBy: creator,
@@ -271,7 +300,7 @@ document
       });
   });
 
-function cetakTableDescription(listData, invoice, status) {
+function cetakTableInvoice(listData, invoice, status) {
   let tbody = document.querySelector(".table-container > table > tbody");
 
   listData.forEach((data) => {
@@ -284,31 +313,43 @@ function cetakTableDescription(listData, invoice, status) {
       buatKolom(data.price)
     );
 
-    let act = document.createElement("td");
-    let btn = document.createElement("a");
-    btn.textContent = "Edit";
-    btn.classList = "yellow-button";
-    act.append(btn);
-    baris.append(act);
+    let act;
+    let btn;
     if (status) {
-      editCar(btn, data.id);
-    }
+      //edit
+      act = document.createElement("td");
+      btn = document.createElement("a");
+      btn.textContent = "Edit";
+      btn.classList = "yellow-button";
+      act.append(btn);
+      baris.append(act);
+      editCar(btn, data.id, status);
 
-    act = document.createElement("td");
-    btn = document.createElement("a");
-    btn.textContent = "Delete";
-    btn.classList = "red-button";
-    act.append(btn);
-    baris.append(act);
-    if (status) {
+      //delete
+      act = document.createElement("td");
+      btn = document.createElement("a");
+      btn.textContent = "Delete";
+      btn.classList = "red-button";
+      act.append(btn);
+      baris.append(act);
       deleteCar(btn, data.id, invoice);
+    } else {
+      act = document.createElement("td");
+      act.colSpan = 2;
+      btn = document.createElement("a");
+      btn.textContent = "Detail";
+      btn.classList = "yellow-button";
+      act.append(btn);
+      baris.append(act);
+
+      editCar(btn, data.id, status);
     }
 
     tbody.append(baris);
   });
 }
 
-function editCar(object, uniqueId) {
+function editCar(object, uniqueId, status) {
   object.addEventListener("click", function () {
     fetch(baseEndpointUrl + "/invoice/get-desc?descId=" + uniqueId, {
       method: "GET",
@@ -317,7 +358,7 @@ function editCar(object, uniqueId) {
       .then((data) => {
         document.getElementById("modal-popup").style.display = "flex";
         loadDropdownCarExist(data.data.vehicleId);
-        setDataToFormCar(data.data);
+        setDataToFormCar(data.data, status);
       });
   });
 }
@@ -340,11 +381,21 @@ function deleteCar(object, uniqueId, invoiceNumber) {
   });
 }
 
-function setDataToFormCar(desc) {
+function setDataToFormCar(desc, status) {
   document.querySelector("input[name=descId]").value = desc.id;
   document.querySelector("input[name=rent-from]").value = desc.rentFrom;
   document.querySelector("input[name=rent-to]").value = desc.rentTo;
   document.querySelector("input[name=price]").value = desc.price;
+
+  if (!status) {
+    document.getElementById("button-submit-car").style = "display : none";
+    document.getElementById("close-button").style = "grid-column : 1/3";
+    document.querySelector("select[name=carSelect]").disabled = true;
+    document.querySelector("input[name=descId]").disabled = true;
+    document.querySelector("input[name=rent-from]").disabled = true;
+    document.querySelector("input[name=rent-to]").disabled = true;
+    document.querySelector("input[name=price]").disabled = true;
+  }
 }
 
 function buatKolom(data) {
@@ -366,13 +417,17 @@ function clearTable() {
 document.getElementById("clientCode").addEventListener("change", function () {
   var client = document.getElementById("clientCode").value;
 
-  fetch(baseEndpointUrl + "/invoice/generate?clientCode=" + client, {
+  fetch(baseEndpointUrl + "/dropdown/dsoClient?clientCode=" + client, {
     method: "GET",
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.code == 200) {
-        document.querySelector("input[name='invoice']").value = data.data;
+        document.querySelector("select[name=dsoClient]").disabled = false;
+        createDropdown(
+          data.data,
+          document.querySelector("select[name=dsoClient]")
+        );
       } else {
         console.log("Error consume API with message : " + data.message);
       }
@@ -381,3 +436,21 @@ document.getElementById("clientCode").addEventListener("change", function () {
       console.log("Error consume API with message : " + data.message);
     });
 });
+
+document
+  .querySelector("select[name=dsoClient]")
+  .addEventListener("change", function () {
+    var dso = document.querySelector("select[name=dsoClient]").value;
+
+    fetch(baseEndpointUrl + "/invoice/generate?dsoId=" + dso, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.code == 200) {
+          document.querySelector("input[name=invoice]").value = data.data;
+        } else {
+          console.log("Error consume API : " + data.message);
+        }
+      });
+  });

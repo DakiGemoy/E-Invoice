@@ -1,12 +1,18 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{layout/base-layout :: head}"></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Invoice</title>
+    <link rel="stylesheet" th:href="@{/resources/css/base-layout-style.css}">
+    <script th:src="@{/resources/scripts/dashboard_script.js}" defer></script>
+</head>
 <body>
     <div class="container">
         <nav th:replace="~{layout/base-layout :: nav}"></nav>
         <div class="header-main">
             <header th:replace="~{layout/base-layout :: header}"></header>
             <main>
-                <form action="/page" method="GET" class="search-bar">
+                <form action="#" method="GET" class="search-bar" id="search-invoice">
                     <input type="text" name="search" placeholder="Search" />
                     <button type="submit" class="green-button">Search</button>
                     <a th:href="@{/invoice/detail}" class="blue-button">Create</a>
@@ -18,25 +24,22 @@
                         <tr>
                             <td>Invoice Number</td>
                             <td>Spk Number</td>
-                            <td>Status</td>
+                            <td>Due Date</td>
+                            <td>Is Draft</td>
+                            <td>Amount</td>
                             <td colspan="2">Action</td>
                         </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="data : ${list}" th:object="${data}">
-                                <td th:text="*{invoiceNumber}"></td>
-                                <td th:text="*{spkNumber}"></td>
-                                <td th:text="*{dueDate}"></td>
-                                <td><a th:href="@{/invoice/detail(invoiceNumber=*{invoiceNumber})}" class="blue-button">Detail</a></td>
-                                <td><a th:href="@{/invoice/detail(invoiceNumber=*{invoiceNumber})}" class="red-button">Delete</a></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                         <tfoot>
                         <tr>
-                            <td colspan="5" class="tableFooter">Ini Footer Pagination</td>
+                            <td colspan="7"></td>
                         </tr>
                         </tfoot>
                     </table>
+                </div>
+                <div id="notif" class="notif">
+                    <p>Error</p>
                 </div>
             </main>
         </div>

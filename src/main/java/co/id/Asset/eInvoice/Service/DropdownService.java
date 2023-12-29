@@ -47,10 +47,10 @@ public class DropdownService {
         return new BaseResponse(200,"Success",null,dropdownModels) ;
     }
 
-    public BaseResponse dropdownVehicle(){
+    public BaseResponse dropdownVehicle(String search) {
         List<DropdownModel> dropdownModels = new ArrayList<>();
 
-        var listVehicle = vehicleRepository.findAll();
+        var listVehicle = vehicleRepository.getDataCar(search);
 
         for(var v : listVehicle){
             dropdownModels.add(new DropdownModel(v.getType()+"-"+v.getUniqueNumber(),v.getId()));
