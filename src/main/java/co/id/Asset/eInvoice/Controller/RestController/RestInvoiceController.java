@@ -33,7 +33,7 @@ public class RestInvoiceController {
     public BaseResponse addCarToInvoice(@RequestBody CarRequest carRequest){
         return invoiceService.saveCarToInvoice(carRequest);
     }
-//test
+
     @GetMapping("/check")
     public Boolean checkInvoice(@RequestParam String invoiceNumber){
         return invoiceService.checkInvoiceNumber(invoiceNumber);
