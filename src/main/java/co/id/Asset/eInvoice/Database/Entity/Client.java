@@ -16,16 +16,4 @@ public class Client {
     @Column(name = "name")
     private String clientName;
 
-    @Column(name = "address")
-    private String clientAddress;
-
-    @Column(name = "region_id")
-    private Integer regionId;
-
-    @Column(name = "email")
-    private String clientEmail;
-
-    @Column(name = "phone_number")
-    private String clientPhone;
-
 }

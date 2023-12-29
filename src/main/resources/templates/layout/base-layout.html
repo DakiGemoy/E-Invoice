@@ -11,17 +11,14 @@
         <nav th:fragment="nav">
             <h3>Menu</h3>
             <div>
-                <a th:href="@{/home/page}">Home</a>
                 <a th:href="@{/home/dashboard}">Dashboard</a>
-                <a th:href="@{/auth/list}">List Account</a>
-                <a th:href="@{/client/list}">List Client</a>
             </div>
         </nav>
         <div class="header-main">
             <header th:fragment="header">
-                <h2>Ini Header</h2>
+                <h2>PT. Bangka Berjaya</h2>
                 <div class="logout-box">
-                    <p sec:authentication="name">Anonymus</p>
+                    <p sec:authentication="name" id="user-loged">Anonymus</p>
                     <form th:attr="action=@{/logout}" method="POST">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit">

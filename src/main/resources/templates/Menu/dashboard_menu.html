@@ -1,46 +1,45 @@
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{layout/base-layout :: head}"></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Invoice</title>
+    <link rel="stylesheet" th:href="@{/resources/css/base-layout-style.css}">
+    <script th:src="@{/resources/scripts/dashboard_script.js}" defer></script>
+</head>
 <body>
     <div class="container">
         <nav th:replace="~{layout/base-layout :: nav}"></nav>
         <div class="header-main">
             <header th:replace="~{layout/base-layout :: header}"></header>
             <main>
-                <form action="/page" method="Get" class="search-bar">
-                    <input type="text" placeholder="Invoice Number" />
-                    <input type="text" placeholder="Date" />
+                <form action="#" method="GET" class="search-bar" id="search-invoice">
+                    <input type="text" name="search" placeholder="Search" />
                     <button type="submit" class="green-button">Search</button>
+                    <a th:href="@{/invoice/detail}" class="blue-button">Create</a>
                 </form>
 
                 <div class="table-container">
                     <table>
                         <thead>
                         <tr>
-                            <td>Number</td>
                             <td>Invoice Number</td>
-                            <td>Invoice Desc</td>
-                            <td>Action</td>
+                            <td>Spk Number</td>
+                            <td>Due Date</td>
+                            <td>Is Draft</td>
+                            <td>Amount</td>
+                            <td colspan="2">Action</td>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>test</td>
-                            <td>test</td>
-                            <td>test</td>
-                        </tr>
-                        <tr>
-                            <td>1</td>
-                            <td>test</td>
-                            <td>test</td>
-                            <td>test</td>
-                        </tr>
-                        </tbody>
+                        <tbody></tbody>
                         <tfoot>
-                        <tr></tr>
+                        <tr>
+                            <td colspan="7"></td>
+                        </tr>
                         </tfoot>
                     </table>
+                </div>
+                <div id="notif" class="notif">
+                    <p>Error</p>
                 </div>
             </main>
         </div>

@@ -1,11 +1,13 @@
 package co.id.Asset.eInvoice.Database.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,11 +25,16 @@ public class Invoice {
     @Column(name = "notes")
     private String notes;
 
-    @Column(name = "client_code")
-    private String clientCode;
+    @Column(name = "client_dso_id")
+    private Integer clientDsoId;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER  )
+    @JoinColumn(name = "client_dso_id",insertable = false, updatable = false)
+    private DsoClient clientDsoObj;
 
     @Column(name = "due_date")
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
 
     @Column(name = "is_draft")
     private Boolean isDraft;
@@ -43,5 +50,15 @@ public class Invoice {
 
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    public Invoice(String invoiceNumber, String spkNumber, String notes,
+                   Integer clientDsoId, LocalDate dueDate, Boolean isDraft){
+        this.invoiceNumber = invoiceNumber;
+        this.spkNumber = spkNumber;
+        this.notes = notes;
+        this.clientDsoId = clientDsoId;
+        this.dueDate = dueDate;
+        this.isDraft = isDraft;
+    }
 
 }

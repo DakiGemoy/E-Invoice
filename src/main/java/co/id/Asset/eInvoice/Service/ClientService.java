@@ -2,34 +2,22 @@ package co.id.Asset.eInvoice.Service;
 
 import co.id.Asset.eInvoice.Database.Entity.Client;
 import co.id.Asset.eInvoice.Database.Repository.ClientRepository;
+import co.id.Asset.eInvoice.Database.Repository.DsoClientRepository;
 import co.id.Asset.eInvoice.Model.BaseResponse;
 import co.id.Asset.eInvoice.Model.ClientInput;
 import co.id.Asset.eInvoice.Model.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
-
-    public BaseResponse saveClientInsert(ClientInput payload){
-        Client client = null;
-
-        if(clientRepository.existsByClientCode(payload.getCode())){
-            return new BaseResponse(400,"BAD REQUEST","Client is already exists",null);
-        } else {
-            client = new Client(payload.getCode(), payload.getName(), payload.getAddress(),payload.getRegionId(), payload.getEmail(), payload.getPhone());
-        }
-
-        try {
-            clientRepository.save(client);
-            return new BaseResponse(200,"Succes save client",null,null);
-        } catch (Exception e){
-            return new BaseResponse(500, "INTERNAL SERVER ERROR","e.getMessage()",null);
-        }
-    }
+    @Autowired
+    private DsoClientRepository dsoClientRepository;
 
     public BaseResponse getClient(String clientCode){
         var c = clientRepository.findById(clientCode);
@@ -53,5 +41,12 @@ public class ClientService {
         PaginationResponse response = new PaginationResponse(list,page,totalPage);
 
         return new BaseResponse(200, null, null, response);
+    }
+
+    public BaseResponse getClientDso(Integer dsoId){
+        var dso = dsoClientRepository.findById(dsoId)
+                .orElseThrow(()-> new EntityNotFoundException("DSO not found : "+dsoId));
+
+        return new BaseResponse(200,"Success",null, dso.getClientCode());
     }
 }

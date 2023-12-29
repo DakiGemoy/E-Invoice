@@ -13,11 +13,6 @@ public class RestClientController {
     @Autowired
     private ClientService clientService;
 
-    @PostMapping("/insert")
-    public BaseResponse saveClient(@RequestBody ClientInput payload){
-        return clientService.saveClientInsert(payload);
-    }
-
     @GetMapping("/getupdate/{clientCode}")
     public BaseResponse getClient(@PathVariable String clientCode){
         return clientService.getClient(clientCode);
@@ -27,5 +22,10 @@ public class RestClientController {
     public BaseResponse getListClient(@RequestParam(defaultValue = "") String search,
                                       @RequestParam(defaultValue = "1") String page){
         return clientService.listClient(search,Integer.valueOf(page));
+    }
+
+    @GetMapping("/getClientByDso")
+    public BaseResponse getClientByDso(@RequestParam Integer dsoId){
+        return clientService.getClientDso(dsoId);
     }
 }

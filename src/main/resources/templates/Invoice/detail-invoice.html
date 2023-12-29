@@ -1,0 +1,123 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Invoice</title>
+    <link rel="stylesheet" th:href="@{/resources/css/base-layout-style.css}">
+    <script th:src="@{/resources/scripts/invoice_detail.js}" defer></script>
+</head>
+<body>
+<div class="container">
+    <nav th:replace="~{layout/base-layout :: nav}"></nav>
+    <div class="header-main">
+        <header th:replace="~{layout/base-layout :: header}"></header>
+        <main>
+            <div class="invoice-container">
+                <form
+                        method="POST"
+                        class="invoice-input"
+                        id="invoice-input">
+                    <label>Invoice No</label>
+                    <input
+                            type="text"
+                            name="invoice"
+                            placeholder="Invoice Number"
+                            disabled
+                    />
+                    <label>Client</label>
+                    <div class="clientBox">
+                        <select name="clientCode" id="clientCode">
+                            <option disabled selected>Client</option>
+                        </select>
+                        <select name="dsoClient" disabled>
+                            <option disabled selected>DSO Client</option>
+                        </select>
+                    </div>
+                    <label>SPK Number</label>
+                    <input
+                            name="spkNum"
+                            type="text"
+                            placeholder="SPK Number"
+                            required
+                    />
+                    <label>Notes</label>
+                    <textarea
+                            name="notes"
+                            cols="10"
+                            rows="3"
+                            placeholder="Notes"
+                    ></textarea>
+                    <label>Due Date</label>
+                    <input name="dueDate" type="date" required />
+                    <label>Status</label>
+                    <label>
+                        <input name="status" type="checkbox" /> Is Draft
+                        <br />
+                    </label>
+
+                    <button id="submit-button-invoice"
+                            type="submit" class="blue-button">Save</button>
+                    <a th:href="@{/home/dashboard}" class="red-button"
+                       id="back-button">Back</a>
+                </form>
+            </div>
+
+            <div class="separator" id="add-car">
+                 <a class="green-button" onclick="openForm()">Add Car</a>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <td>Car</td>
+                        <td>Rent From</td>
+                        <td>Rent To</td>
+                        <td>Price</td>
+                        <td colspan="2">Action</td>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="6"></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="modal" id="modal-popup">
+                <form id="car-insert" action="#" class="modal-form">
+                    <label>Desc Id</label>
+                    <input
+                            type="number"
+                            name="descId"
+                            placeholder="Description Id"
+                            disabled
+                    />
+                    <label>Car</label>
+                    <select name="carSelect" required>
+                        <option disabled selected>Car Option</option>
+                    </select>
+                    <label>Rent From</label>
+                    <input type="date" name="rent-from" required />
+                    <label>Rent To</label>
+                    <input type="date" name="rent-to" required />
+                    <label>Price</label>
+                    <input type="number" name="price" required />
+                    <button type="submit" class="green-button" id="button-submit-car">
+                        Submit
+                    </button>
+                    <a id="close-button" onclick="closeForm()" class="red-button">
+                        Close
+                    </a>
+                </form>
+            </div>
+            <div id="notif" class="notif">
+                <p>Error</p>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
