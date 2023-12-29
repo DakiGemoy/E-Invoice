@@ -23,16 +23,26 @@ public class Util {
 
         if(emailType.getType().equals("Notification")){
             message = "Kepada Yth. \nPerwakilan "+client.getClientObj().getClientName()+"\n\nDitempat, \n"+
-            "\n\tBersamaan dengan dikirimkannya email ini, kami informasikan bahwa penyewaan mobil terhadap PT. Bangka Berjaya dengan rincian sebagai berikut : \n"+
-            "\n\t\tInvoice No       : "+invoice.getInvoiceNumber()+
-            "\n\t\tTotal            : Rp. "+formatNumber.format(invoice.getAmount())+
-            "\n\t\tTenggat Waktu    : "+formatter.format(invoice.getDueDate())+
-            "\n\n\tDengan rincian mobil yang disewa adalah : \n"+
-            "\n"+listDescription(descriptions)+
-            "\n\n\tDemikian email ini diinformasikan, apabila ada data yang keliru mohon hubungi pihak kami kembali. Terima kasih."+
-            "\n\n\t\t\t\t\tHormatKami"+
-            "\n\n\n\t\t\t\tPT. Bangka Berjaya";
+                    "\nBersamaan dengan dikirimkannya email ini, kami informasikan bahwa penyewaan mobil terhadap PT. Bangka Berjaya dengan rincian sebagai berikut : \n"+
+                    "\nInvoice No       : "+invoice.getInvoiceNumber()+
+                    "\nDibuat pada      : "+formatter.format(invoice.getCreatedDate())+
+                    "\nTotal            : Rp. "+formatNumber.format(invoice.getAmount())+
+                    "\n\nDengan rincian mobil yang disewa adalah : \n"+
+                    "\n"+listDescription(descriptions)+
+                    "\nDemikian email ini diinformasikan, apabila ada data yang keliru mohon hubungi pihak kami kembali. Terima kasih."+
+                    "\n\n\t\t\t\t\t\t\t\tHormat Kami"+
+                    "\n\n\n\t\t\t\t\t\t\tPT. Bangka Berjaya";
         } else {
+            message = "Kepada Yth. \nPerwakilan "+client.getClientObj().getClientName()+"\n\nDitempat, \n"+
+                    "\nBersamaan dengan dikirimkannya email ini, kami informasikan bahwa penyewaan mobil terhadap PT. Bangka Berjaya dengan rincian sebagai berikut : \n"+
+                    "\nInvoice No       : "+invoice.getInvoiceNumber()+
+                    "\nDibuat pada      : "+formatter.format(invoice.getCreatedDate())+
+                    "\nTotal            : Rp. "+formatNumber.format(invoice.getAmount())+
+                    "\n\nDengan rincian mobil yang disewa adalah : \n"+
+                    "\n"+listDescription(descriptions)+
+                    "\nDemikian email ini diinformasikan, apabila ada data yang keliru mohon hubungi pihak kami kembali. Terima kasih."+
+                    "\n\n\t\t\t\t\t\t\t\tHormat Kami"+
+                    "\n\n\n\t\t\t\t\t\t\tPT. Bangka Berjaya";
         }
 
         return message;
@@ -42,8 +52,8 @@ public class Util {
         String back = "";
         for(var d : descriptions){
             back = back +
-                    "\t\tMobil      : "+d.getVehicleObj().getType()+" ("+d.getVehicleObj().getUniqueNumber()+")"+
-                  "\n\t\tPenyewaan  : "+formatter.format(d.getRentFrom())+" s/d "+formatter.format(d.getRentTo())+"\n";
+                    "Mobil      : "+d.getVehicleObj().getType()+" ("+d.getVehicleObj().getUniqueNumber()+")"+
+                  "\nPeriode  : "+formatter.format(d.getRentFrom())+" s/d "+formatter.format(d.getRentTo())+"\n";
         }
         return back;
     }

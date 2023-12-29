@@ -12,6 +12,7 @@ public class InvoiceSummary {
     private String invoiceNumber;
     private String spkNumber;
     private LocalDate dueDate;
+    private LocalDate createdDate;
     private Boolean isDraft;
     private Double amount;
 
@@ -28,5 +29,6 @@ public class InvoiceSummary {
         this.spkNumber = invoice.getSpkNumber();
         this.dueDate = invoice.getDueDate();
         this.isDraft = invoice.getIsDraft();
+        this.createdDate = LocalDate.from(invoice.getCreatedDate());
     }
 }
