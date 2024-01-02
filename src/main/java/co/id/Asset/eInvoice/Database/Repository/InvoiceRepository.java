@@ -38,8 +38,26 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
             FROM Invoice 
             WHERE invoice_number LIKE %:search% 
             OR spk_number LIKE %:search%
+            ORDER BY is_reminder ASC, 
+            DATEDIFF(DAY, GETDATE(), due_date) ASC 
             """, nativeQuery = true)
     List<Invoice> getPagination(@Param("search") String search,
+                                       Pageable pageable);
+
+    @Query(value = """
+            SELECT * 
+            FROM Invoice 
+            WHERE  
+            CAST(created_date AS DATE) >= :rangeFrom AND 
+            CAST(created_date AS DATE) <= :rangeTo AND 
+            ( spk_number LIKE %:search% OR  
+            invoice_number LIKE %:search% ) 
+            ORDER BY is_reminder ASC,
+            DATEDIFF(DAY, GETDATE(), due_date) ASC 
+            """, nativeQuery = true)
+    List<Invoice> getPagination(@Param("search") String search,
+                                       @Param("rangeFrom") LocalDate rangeFrom,
+                                       @Param("rangeTo") LocalDate rangeTo,
                                        Pageable pageable);
 
     @Query(value = """

@@ -18,6 +18,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,13 +42,26 @@ public class InvoiceService {
     @Autowired
     private ExcelService excelService;
 
-    public BaseResponse getPagingInvoice(String search,
-                                         Integer page){
+    public BaseResponse getPagingInvoice(InvoicePaging invoicePaging){
         Integer limit = 5;
 
-        Pageable pageable = PageRequest.of(page-1,limit);
+        Pageable pageable = PageRequest.of(invoicePaging.getPage()-1,limit);
         List<InvoiceSummary> summaries = new ArrayList<>();
-        var invoices = invoiceRepository.getPagination(search, pageable);
+        List<Invoice> invoices = new ArrayList<>();
+
+
+        if(invoicePaging.getRangeFrom().equals("") || invoicePaging.getRangeTo().equals("")){
+            invoices = invoiceRepository.getPagination(invoicePaging.getSearch(), pageable);
+        } else {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate rFrom = LocalDate.parse(invoicePaging.getRangeFrom(), formatter);
+                LocalDate rTo = LocalDate.parse(invoicePaging.getRangeTo(), formatter);
+                invoices = invoiceRepository.getPagination(invoicePaging.getSearch(), rFrom, rTo, pageable);
+            } catch (Exception e){
+                throw new RuntimeException(e.getMessage());
+            }
+        }
 
         for(var inv : invoices){
             var descs = descriptionRepository.findByInvoiceNumber(inv.getInvoiceNumber());
@@ -55,9 +69,9 @@ public class InvoiceService {
             summaries.add(new InvoiceSummary(inv, sumPriceOfInvoice(descs)));
         }
 
-        var totalData = (double) invoiceRepository.countPaging(search);
+        var totalData = (double) invoiceRepository.countPaging(invoicePaging.getSearch());
         Long totalPage = (long) Math.ceil(totalData/limit);
-        PaginationResponse response = new PaginationResponse(summaries,page,totalPage);
+        PaginationResponse response = new PaginationResponse(summaries,invoicePaging.getPage(),totalPage);
 
         return new BaseResponse(200,"Success",null,response);
     }
@@ -277,7 +291,40 @@ public class InvoiceService {
                 throw new RuntimeException(e.getMessage());
             }
         } else
-            return new BaseResponse(200,"No data to send",null,null);
+            return new BaseResponse(200,"No data to send","No data to send",null);
+
         return new BaseResponse(200,"Success send data",null,null);
+    }
+
+    public BaseResponse reminderClient(String invoiceNumber){
+        var inv = invoiceRepository.findById(invoiceNumber).
+                orElseThrow(()->new EntityNotFoundException("Invoice not found : "+invoiceNumber));
+
+        if(inv.getIsReminder()!=null) {
+            if (inv.getIsReminder()) {
+                return new BaseResponse(400, "This invoice is already send email", "This invoice is already send email", null);
+            }
+        }
+
+        var descs = descriptionRepository.findByInvoiceNumber(invoiceNumber);
+        InvoiceSummary invoiceSummary = new InvoiceSummary(inv);
+        invoiceSummary.setAmount(sumPriceOfInvoice(descs));
+
+        EmailRequest emailRequest = new EmailRequest();
+        var dso = dsoClientRepository.findById(inv.getClientDsoId()).get();
+        emailRequest.setRecipient(dso.getEmail());
+        emailRequest.setSubject("Reminder Invoice "+dso.getClientObj().getClientName());
+        emailRequest.setMsgBody(Util.generateEmailMessage(EmailType.REMINDER, invoiceSummary,
+                dso, descs));
+        try {
+            emailService.sendSimpleMail(emailRequest);
+            inv.setIsReminder(true);
+
+            invoiceRepository.save(inv);
+        } catch (Exception e){
+            return new BaseResponse(500,"Error Internal","Error Internal",null);
+        }
+
+        return new BaseResponse(200,"Success reminder",null,null);
     }
 }

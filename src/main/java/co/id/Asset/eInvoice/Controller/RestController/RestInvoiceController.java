@@ -2,6 +2,7 @@ package co.id.Asset.eInvoice.Controller.RestController;
 
 import co.id.Asset.eInvoice.Model.BaseResponse;
 import co.id.Asset.eInvoice.Model.CarRequest;
+import co.id.Asset.eInvoice.Model.InvoicePaging;
 import co.id.Asset.eInvoice.Model.InvoiceUpsert;
 import co.id.Asset.eInvoice.Service.InvoiceService;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -54,10 +55,19 @@ public class RestInvoiceController {
         return invoiceService.deleteDescription(descId);
     }
 
-    @GetMapping("/list")
-    public BaseResponse listInvoice(@RequestParam(defaultValue = "") String search,
-                                    @RequestParam(defaultValue = "1") Integer page){
-        return invoiceService.getPagingInvoice(search, page);
+    @GetMapping("/reminder")
+    public BaseResponse reminderInvoice(@RequestParam String invoiceNumber){
+        return invoiceService.reminderClient(invoiceNumber);
+    }
+
+//    public BaseResponse listInvoice(@RequestParam(defaultValue = "") String search,
+//                                    @RequestParam(defaultValue = "1") Integer page,
+//                                    @RequestParam(defaultValue = "") String rangeFrom,
+//                                    @RequestParam(defaultValue = "") String rangeTo)
+    @PostMapping("/list")
+    public BaseResponse listInvoice(@RequestBody InvoicePaging paging)
+    {
+        return invoiceService.getPagingInvoice(paging);
     }
 
     @DeleteMapping("/delete-invoice")
@@ -68,7 +78,7 @@ public class RestInvoiceController {
     @GetMapping("/sendExcel")
     public BaseResponse sendToExcel(@RequestParam String rangeFrom,
                                     @RequestParam String rangeTo) throws IOException, InvalidFormatException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return invoiceService.sendToExcel(
                 LocalDate.parse(rangeFrom, formatter),
                 LocalDate.parse(rangeTo,formatter));

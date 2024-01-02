@@ -51,15 +51,25 @@ document
   .addEventListener("submit", function (event) {
     event.preventDefault();
 
-    var searchField = document.querySelector("input[name=search]").value;
+    var searchField = document.querySelector("input[name=Search]").value;
+    var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+    var rangeTo = document.querySelector("input[name=rangeTo]").value;
     var page = 1;
 
-    fetch(
-      baseEndpointUrl + "/invoice/list?search=" + searchField + "&page=" + page,
-      {
-        method: "GET",
-      }
-    )
+    var obj = {
+      search: searchField,
+      page: page,
+      rangeFrom: rangeFrom,
+      rangeTo: rangeTo,
+    };
+
+    fetch(baseEndpointUrl + "/invoice/list", {
+      method: "POST",
+      body: JSON.stringify(obj),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         clearTable();
@@ -92,8 +102,17 @@ function errorGetDataTable() {
 }
 
 function initTableInvoice() {
+  var obj = {
+    search: "",
+    page: 1,
+    rangeFrom: "",
+    rangeTo: "",
+  };
+
   fetch(baseEndpointUrl + "/invoice/list", {
-    method: "GET",
+    method: "POST",
+    body: JSON.stringify(obj),
+    headers: { "Content-Type": "application/json" },
   })
     .then((response) => response.json())
 
@@ -107,7 +126,7 @@ function initTableInvoice() {
 
 function createFooterPagination(activePage, totalPage) {
   let tfoot = document.querySelector(".table-container > table > tfoot td");
-  var searchField = document.querySelector("input[name=search]").value;
+  var searchField = document.querySelector("input[name=Search]").value;
 
   for (let c = 1; c <= totalPage; c++) {
     var anchor = document.createElement("a");
@@ -119,12 +138,22 @@ function createFooterPagination(activePage, totalPage) {
     }
 
     anchor.addEventListener("click", function () {
-      fetch(
-        baseEndpointUrl + "/invoice/list?search=" + searchField + "&page=" + c,
-        {
-          method: "GET",
-        }
-      )
+      var search = document.querySelector("input[name=Search]").value;
+      var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+      var rangeTo = document.querySelector("input[name=rangeTo]").value;
+
+      var objPage = {
+        search: search,
+        page: c,
+        rangeFrom: rangeFrom,
+        rangeTo: rangeTo,
+      };
+
+      fetch(baseEndpointUrl + "/invoice/list", {
+        method: "POST",
+        body: JSON.stringify(objPage),
+        headers: { "Content-Type": "application/json" },
+      })
         .then((response) => response.json())
         .then((data) => {
           clearTable();
@@ -151,7 +180,7 @@ function cetakTableInvoice(listData, activePage, totalPage) {
       buatKolom(data.spkNumber),
       buatKolom(data.dueDate),
       buatKolom(data.isDraft),
-      buatKolom(data.amount)
+      buatKolom(data.amountString)
     );
 
     let act = document.createElement("td");
@@ -176,10 +205,47 @@ function cetakTableInvoice(listData, activePage, totalPage) {
       deleteInvoice(btn, data.invoiceNumber);
     }
 
+    act = document.createElement("td");
+    btn = document.createElement("a");
+    btn.textContent = "Reminder";
+    btn.classList = "yellow-button";
+    act.append(btn);
+    baris.append(act);
+    if (data.isReminder) {
+      btn.style.display = "none";
+      btn.style.pointerEvents = "none";
+    } else {
+      reminderInvoice(btn, data.invoiceNumber);
+    }
+
     tbody.append(baris);
   });
 
   createFooterPagination(activePage, totalPage);
+}
+
+function reminderInvoice(btn, invoiceNumber) {
+  btn.addEventListener("click", function () {
+    fetch(
+      baseEndpointUrl + "/invoice/reminder?invoiceNumber=" + invoiceNumber,
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if ((data.code = 200)) {
+          printNotif(data.code, data.message, data.exception);
+          btn.style.pointerEvents = "none";
+          btn.style.display = "none";
+        } else {
+          printNotif(data.code, data.message, data.exception);
+        }
+      })
+      .error((errors) => {
+        printNotif(400, "Error unkown", "Error unknown");
+      });
+  });
 }
 
 function deleteInvoice(button, invoiceNumber) {
@@ -220,3 +286,34 @@ function clearTable() {
     tableFoot.removeChild(tableFoot.lastChild);
   }
 }
+
+document.getElementById("sendExcel").addEventListener("click", function () {
+  var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+  var rangeTo = document.querySelector("input[name=rangeTo]").value;
+
+  if (rangeFrom == "" || rangeTo == "") {
+    printNotif(500, "", "Range From & To can't be null");
+  } else {
+    fetch(
+      baseEndpointUrl +
+        "/invoice/sendExcel?rangeFrom=" +
+        rangeFrom +
+        "&rangeTo=" +
+        rangeTo,
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.data == 200) {
+          printNotif(data.code, data.message, data.exception);
+        } else {
+          printNotif(data.code, data.message, data.exception);
+        }
+      })
+      .catch((errors) => {
+        printNotif(data.code, data.message, data.exception);
+      });
+  }
+});
