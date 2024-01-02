@@ -31,7 +31,7 @@ public class Util {
                     "\n"+listDescription(descriptions)+
                     "\nDemikian email ini diinformasikan, apabila ada data yang keliru mohon hubungi pihak kami kembali. Terima kasih."+
                     "\n\n\t\t\t\t\t\t\t\tHormat Kami"+
-                    "\n\n\n\t\t\t\t\t\t\tPT. Bangka Berjaya";
+                    "\n\n\n\t\t\t\t\t\tPT. Bangka Berjaya";
         } else {
             message = "Kepada Yth. \nPerwakilan "+client.getClientObj().getClientName()+"\n\nDitempat, \n"+
                     "\nBersamaan dengan dikirimkannya email ini, kami informasikan bahwa penyewaan mobil terhadap PT. Bangka Berjaya dengan rincian sebagai berikut : \n"+
@@ -42,7 +42,7 @@ public class Util {
                     "\n"+listDescription(descriptions)+
                     "\nDemikian email ini diinformasikan, apabila ada data yang keliru mohon hubungi pihak kami kembali. Terima kasih."+
                     "\n\n\t\t\t\t\t\t\t\tHormat Kami"+
-                    "\n\n\n\t\t\t\t\t\t\tPT. Bangka Berjaya";
+                    "\n\n\n\t\t\t\t\t\tPT. Bangka Berjaya";
         }
 
         return message;

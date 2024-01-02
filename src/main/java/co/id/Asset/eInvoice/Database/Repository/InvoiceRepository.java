@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +41,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
             """, nativeQuery = true)
     List<Invoice> getPagination(@Param("search") String search,
                                        Pageable pageable);
+
+    @Query(value = """
+            SELECT * 
+            FROM Invoice 
+            WHERE CAST(created_date AS DATE) >= :rangeFrom AND 
+            CAST(created_date AS DATE) <= :rangeTo AND 
+            is_draft = 0 AND 
+            ( sendToExcel = 0 OR sendToExcel IS NULL )
+            """, nativeQuery = true)
+    List<Invoice> getDataToExcel(@Param("rangeFrom") LocalDate dateFrom,
+                                 @Param("rangeTo") LocalDate dateTo);
 }

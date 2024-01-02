@@ -63,12 +63,23 @@ header {
 
 .logout-box {
   display: flex;
-  width: 13%;
+  width: 20%;
+  align-items: center;
   border: solid 3px white;
   border-radius: 5px;
-  padding: 5px;
+  padding: 15px;
   flex-direction: row;
   justify-content: space-around;
+}
+
+.logout-box > form {
+  background-color: white;
+}
+
+.logout-box > form > button {
+  width: 25px;
+  height: 25px;
+  background-color: none;
 }
 
 main {
@@ -110,7 +121,7 @@ main {
   grid-template-columns: 1fr 1fr;
   row-gap: 5px;
   column-gap: 10px;
-  font-size: medium;
+  font-size: small;
   font-weight: bold;
 }
 
@@ -118,7 +129,7 @@ main {
 .invoice-input select,
 .invoice-input option,
 .invoice-input textarea {
-  font-size: medium;
+  font-size: small;
   border: none;
   border-radius: 5px;
   padding: 5px;
@@ -228,6 +239,7 @@ table {
   width: 100%;
   text-align: center;
   border-collapse: collapse;
+  font-size: small;
 }
 
 thead {

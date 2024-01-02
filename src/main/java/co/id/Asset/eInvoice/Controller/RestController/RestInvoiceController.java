@@ -4,8 +4,13 @@ import co.id.Asset.eInvoice.Model.BaseResponse;
 import co.id.Asset.eInvoice.Model.CarRequest;
 import co.id.Asset.eInvoice.Model.InvoiceUpsert;
 import co.id.Asset.eInvoice.Service.InvoiceService;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("api/invoice")
@@ -58,6 +63,15 @@ public class RestInvoiceController {
     @DeleteMapping("/delete-invoice")
     public BaseResponse deleteInvoice(@RequestParam String invoiceNumber){
         return invoiceService.deleteInvoice(invoiceNumber);
+    }
+
+    @GetMapping("/sendExcel")
+    public BaseResponse sendToExcel(@RequestParam String rangeFrom,
+                                    @RequestParam String rangeTo) throws IOException, InvalidFormatException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return invoiceService.sendToExcel(
+                LocalDate.parse(rangeFrom, formatter),
+                LocalDate.parse(rangeTo,formatter));
     }
 
 }

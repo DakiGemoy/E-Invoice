@@ -7,6 +7,7 @@ import co.id.Asset.eInvoice.Database.Repository.*;
 import co.id.Asset.eInvoice.Model.*;
 import co.id.Asset.eInvoice.Util.EmailType;
 import co.id.Asset.eInvoice.Util.Util;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ public class InvoiceService {
     private DsoClientRepository dsoClientRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ExcelService excelService;
 
     public BaseResponse getPagingInvoice(String search,
                                          Integer page){
@@ -231,8 +235,7 @@ public class InvoiceService {
             throw new RuntimeException("Error while delete description : "+descId);
         }
      }
-
-     public BaseResponse deleteInvoice(String invoiceNumber){
+    public BaseResponse deleteInvoice(String invoiceNumber){
         var invoice = invoiceRepository.findById(invoiceNumber)
                 .orElseThrow(()->new EntityNotFoundException("Invoice number not found : "+invoiceNumber));
 
@@ -255,4 +258,26 @@ public class InvoiceService {
             throw new RuntimeException("Error while delete invoice : "+invoiceNumber);
         }
      }
+
+    public BaseResponse sendToExcel(LocalDate rangeFrom, LocalDate rangeTo) throws IOException, InvalidFormatException {
+        var invoice = invoiceRepository.getDataToExcel(rangeFrom, rangeTo);
+        if(invoice.size()!=0){
+            List<InvoiceForExcel> excelData = new ArrayList<>();
+
+            for(var i : invoice){
+                var descs = descriptionRepository.findByInvoiceNumber(i.getInvoiceNumber());
+                for(var d : descs){
+                    excelData.add(new InvoiceForExcel(i, d));
+                }
+            }
+
+            try {
+                excelService.sendToExcel(excelData);
+            } catch (Exception e){
+                throw new RuntimeException(e.getMessage());
+            }
+        } else
+            return new BaseResponse(200,"No data to send",null,null);
+        return new BaseResponse(200,"Success send data",null,null);
+    }
 }
