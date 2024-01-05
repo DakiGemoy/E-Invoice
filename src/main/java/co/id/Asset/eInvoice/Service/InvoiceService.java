@@ -300,6 +300,9 @@ public class InvoiceService {
         var inv = invoiceRepository.findById(invoiceNumber).
                 orElseThrow(()->new EntityNotFoundException("Invoice not found : "+invoiceNumber));
 
+        if(inv.getIsDraft())
+            return new BaseResponse(400, "This invoice is still in draft session", "This invoice is still in draft session", null);
+
         if(inv.getIsReminder()!=null) {
             if (inv.getIsReminder()) {
                 return new BaseResponse(400, "This invoice is already send email", "This invoice is already send email", null);
