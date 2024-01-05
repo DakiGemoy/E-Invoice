@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>E-Invoice</title>
     <link rel="stylesheet" th:href="@{/resources/css/base-layout-style.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/font-awesome.min.css}">
     <script th:src="@{/resources/scripts/invoice_detail.js}" defer></script>
 </head>
 <body>
@@ -51,7 +52,7 @@
                     <input name="dueDate" type="date" required />
                     <label>Status</label>
                     <label>
-                        <input name="status" type="checkbox" /> Is Draft
+                        <input name="status" type="checkbox" checked/> Is Draft
                         <br />
                     </label>
 

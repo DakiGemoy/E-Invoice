@@ -7,6 +7,7 @@ import co.id.Asset.eInvoice.Database.Repository.*;
 import co.id.Asset.eInvoice.Model.*;
 import co.id.Asset.eInvoice.Util.EmailType;
 import co.id.Asset.eInvoice.Util.Util;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +39,29 @@ public class InvoiceService {
     private DsoClientRepository dsoClientRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ExcelService excelService;
 
-    public BaseResponse getPagingInvoice(String search,
-                                         Integer page){
+    public BaseResponse getPagingInvoice(InvoicePaging invoicePaging){
         Integer limit = 5;
 
-        Pageable pageable = PageRequest.of(page-1,limit);
+        Pageable pageable = PageRequest.of(invoicePaging.getPage()-1,limit);
         List<InvoiceSummary> summaries = new ArrayList<>();
-        var invoices = invoiceRepository.getPagination(search, pageable);
+        List<Invoice> invoices = new ArrayList<>();
+
+
+        if(invoicePaging.getRangeFrom().equals("") || invoicePaging.getRangeTo().equals("")){
+            invoices = invoiceRepository.getPagination(invoicePaging.getSearch(), pageable);
+        } else {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate rFrom = LocalDate.parse(invoicePaging.getRangeFrom(), formatter);
+                LocalDate rTo = LocalDate.parse(invoicePaging.getRangeTo(), formatter);
+                invoices = invoiceRepository.getPagination(invoicePaging.getSearch(), rFrom, rTo, pageable);
+            } catch (Exception e){
+                throw new RuntimeException(e.getMessage());
+            }
+        }
 
         for(var inv : invoices){
             var descs = descriptionRepository.findByInvoiceNumber(inv.getInvoiceNumber());
@@ -51,9 +69,9 @@ public class InvoiceService {
             summaries.add(new InvoiceSummary(inv, sumPriceOfInvoice(descs)));
         }
 
-        var totalData = (double) invoiceRepository.countPaging(search);
+        var totalData = (double) invoiceRepository.countPaging(invoicePaging.getSearch());
         Long totalPage = (long) Math.ceil(totalData/limit);
-        PaginationResponse response = new PaginationResponse(summaries,page,totalPage);
+        PaginationResponse response = new PaginationResponse(summaries,invoicePaging.getPage(),totalPage);
 
         return new BaseResponse(200,"Success",null,response);
     }
@@ -231,8 +249,7 @@ public class InvoiceService {
             throw new RuntimeException("Error while delete description : "+descId);
         }
      }
-
-     public BaseResponse deleteInvoice(String invoiceNumber){
+    public BaseResponse deleteInvoice(String invoiceNumber){
         var invoice = invoiceRepository.findById(invoiceNumber)
                 .orElseThrow(()->new EntityNotFoundException("Invoice number not found : "+invoiceNumber));
 
@@ -255,4 +272,62 @@ public class InvoiceService {
             throw new RuntimeException("Error while delete invoice : "+invoiceNumber);
         }
      }
+
+    public BaseResponse sendToExcel(LocalDate rangeFrom, LocalDate rangeTo) throws IOException, InvalidFormatException {
+        var invoice = invoiceRepository.getDataToExcel(rangeFrom, rangeTo);
+        if(invoice.size()!=0){
+            List<InvoiceForExcel> excelData = new ArrayList<>();
+
+            for(var i : invoice){
+                var descs = descriptionRepository.findByInvoiceNumber(i.getInvoiceNumber());
+                for(var d : descs){
+                    excelData.add(new InvoiceForExcel(i, d));
+                }
+            }
+
+            try {
+                excelService.sendToExcel(excelData);
+            } catch (Exception e){
+                throw new RuntimeException(e.getMessage());
+            }
+        } else
+            return new BaseResponse(200,"No data to send","No data to send",null);
+
+        return new BaseResponse(200,"Success send data",null,null);
+    }
+
+    public BaseResponse reminderClient(String invoiceNumber){
+        var inv = invoiceRepository.findById(invoiceNumber).
+                orElseThrow(()->new EntityNotFoundException("Invoice not found : "+invoiceNumber));
+
+        if(inv.getIsDraft())
+            return new BaseResponse(400, "This invoice is still in draft session", "This invoice is still in draft session", null);
+
+        if(inv.getIsReminder()!=null) {
+            if (inv.getIsReminder()) {
+                return new BaseResponse(400, "This invoice is already send email", "This invoice is already send email", null);
+            }
+        }
+
+        var descs = descriptionRepository.findByInvoiceNumber(invoiceNumber);
+        InvoiceSummary invoiceSummary = new InvoiceSummary(inv);
+        invoiceSummary.setAmount(sumPriceOfInvoice(descs));
+
+        EmailRequest emailRequest = new EmailRequest();
+        var dso = dsoClientRepository.findById(inv.getClientDsoId()).get();
+        emailRequest.setRecipient(dso.getEmail());
+        emailRequest.setSubject("Reminder Invoice "+dso.getClientObj().getClientName());
+        emailRequest.setMsgBody(Util.generateEmailMessage(EmailType.REMINDER, invoiceSummary,
+                dso, descs));
+        try {
+            emailService.sendSimpleMail(emailRequest);
+            inv.setIsReminder(true);
+
+            invoiceRepository.save(inv);
+        } catch (Exception e){
+            return new BaseResponse(500,"Error Internal","Error Internal",null);
+        }
+
+        return new BaseResponse(200,"Success reminder",null,null);
+    }
 }

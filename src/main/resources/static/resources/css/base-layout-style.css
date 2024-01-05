@@ -63,12 +63,23 @@ header {
 
 .logout-box {
   display: flex;
-  width: 13%;
+  width: 20%;
+  align-items: center;
   border: solid 3px white;
   border-radius: 5px;
-  padding: 5px;
+  padding: 15px;
   flex-direction: row;
   justify-content: space-around;
+}
+
+.logout-box > form {
+  background-color: white;
+}
+
+.logout-box > form > button {
+  width: 25px;
+  height: 25px;
+  background-color: none;
 }
 
 main {
@@ -83,9 +94,11 @@ main {
 
 .search-bar {
   display: flex;
+  flex-direction: row;
   width: 100%;
   justify-content: space-evenly;
   padding: 10px;
+  align-items: center;
 }
 
 .search-bar input {
@@ -110,7 +123,7 @@ main {
   grid-template-columns: 1fr 1fr;
   row-gap: 5px;
   column-gap: 10px;
-  font-size: medium;
+  font-size: small;
   font-weight: bold;
 }
 
@@ -118,7 +131,7 @@ main {
 .invoice-input select,
 .invoice-input option,
 .invoice-input textarea {
-  font-size: medium;
+  font-size: small;
   border: none;
   border-radius: 5px;
   padding: 5px;
@@ -176,7 +189,7 @@ main {
   border-radius: 10px;
   font-size: medium;
   font-weight: bold;
-  background-color: rgb(248, 248, 48);
+  background-color: rgba(248, 248, 48, 0.658);
   text-align: center;
 }
 
@@ -228,6 +241,7 @@ table {
   width: 100%;
   text-align: center;
   border-collapse: collapse;
+  font-size: small;
 }
 
 thead {
@@ -351,4 +365,28 @@ tbody > tr:nth-child(even) {
 }
 .warning {
   background-color: rgb(225, 225, 25);
+}
+
+.loading-container {
+  position: absolute;
+  top: 50%;
+  display: none;
+}
+
+.loading {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 500ms linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

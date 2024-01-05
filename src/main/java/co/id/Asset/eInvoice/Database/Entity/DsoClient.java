@@ -21,7 +21,7 @@ public class DsoClient {
     private String clientCode;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_code",insertable = false, updatable = false)
     private Client clientObj;
 
@@ -29,7 +29,7 @@ public class DsoClient {
     private Integer regionId;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "region_id",insertable = false, updatable = false)
     private MasterRegion regionObj;
 

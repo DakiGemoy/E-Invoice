@@ -7,7 +7,7 @@ let response;
 let data;
 
 (function () {
-  initTableInvoice();
+  fetchTableInvoice();
 })();
 
 function printNotif(status, msg, exc) {
@@ -51,31 +51,19 @@ document
   .addEventListener("submit", function (event) {
     event.preventDefault();
 
-    var searchField = document.querySelector("input[name=search]").value;
+    var searchField = document.querySelector("input[name=Search]").value;
+    var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+    var rangeTo = document.querySelector("input[name=rangeTo]").value;
     var page = 1;
 
-    fetch(
-      baseEndpointUrl + "/invoice/list?search=" + searchField + "&page=" + page,
-      {
-        method: "GET",
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        clearTable();
-        if (data.data.detail.length > 0) {
-          cetakTableInvoice(
-            data.data.detail,
-            data.data.page,
-            data.data.totalPage
-          );
-        } else {
-          errorGetDataTable();
-        }
-      })
-      .catch((error) => {
-        errorGetDataTable();
-      });
+    var obj = {
+      search: searchField,
+      page: page,
+      rangeFrom: rangeFrom,
+      rangeTo: rangeTo,
+    };
+
+    fetchSearchInvoice(obj);
   });
 
 function errorGetDataTable() {
@@ -91,23 +79,8 @@ function errorGetDataTable() {
   tbody.append(tr);
 }
 
-function initTableInvoice() {
-  fetch(baseEndpointUrl + "/invoice/list", {
-    method: "GET",
-  })
-    .then((response) => response.json())
-
-    .then((data) => {
-      cetakTableInvoice(data.data.detail, data.data.page, data.data.totalPage);
-    })
-    .catch((error) => {
-      errorGetDataTable();
-    });
-}
-
 function createFooterPagination(activePage, totalPage) {
   let tfoot = document.querySelector(".table-container > table > tfoot td");
-  var searchField = document.querySelector("input[name=search]").value;
 
   for (let c = 1; c <= totalPage; c++) {
     var anchor = document.createElement("a");
@@ -119,21 +92,18 @@ function createFooterPagination(activePage, totalPage) {
     }
 
     anchor.addEventListener("click", function () {
-      fetch(
-        baseEndpointUrl + "/invoice/list?search=" + searchField + "&page=" + c,
-        {
-          method: "GET",
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          clearTable();
-          cetakTableInvoice(
-            data.data.detail,
-            data.data.page,
-            data.data.totalPage
-          );
-        });
+      var search = document.querySelector("input[name=Search]").value;
+      var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+      var rangeTo = document.querySelector("input[name=rangeTo]").value;
+
+      var objPage = {
+        search: search,
+        page: c,
+        rangeFrom: rangeFrom,
+        rangeTo: rangeTo,
+      };
+
+      fetchPagingInvoice(objPage);
     });
 
     tfoot.append(anchor);
@@ -146,12 +116,19 @@ function cetakTableInvoice(listData, activePage, totalPage) {
   listData.forEach((data) => {
     const baris = document.createElement("tr");
 
+    let status = "";
+    if (data.isDraft) {
+      status = "Yes";
+    } else {
+      status = "No";
+    }
+
     baris.append(
       buatKolom(data.invoiceNumber),
       buatKolom(data.spkNumber),
       buatKolom(data.dueDate),
-      buatKolom(data.isDraft),
-      buatKolom(data.amount)
+      buatKolom(status),
+      buatKolom(data.amountString)
     );
 
     let act = document.createElement("td");
@@ -176,28 +153,34 @@ function cetakTableInvoice(listData, activePage, totalPage) {
       deleteInvoice(btn, data.invoiceNumber);
     }
 
+    act = document.createElement("td");
+    btn = document.createElement("a");
+    btn.textContent = "Reminder";
+    btn.classList = "yellow-button";
+    act.append(btn);
+    baris.append(act);
+    if (data.isReminder || data.isDraft) {
+      btn.style.display = "none";
+      btn.style.pointerEvents = "none";
+    } else {
+      reminderInvoice(btn, data.invoiceNumber);
+    }
+
     tbody.append(baris);
   });
 
   createFooterPagination(activePage, totalPage);
 }
 
+function reminderInvoice(btn, invoiceNumber) {
+  btn.addEventListener("click", function () {
+    fetchReminderInvoice(btn, invoiceNumber);
+  });
+}
+
 function deleteInvoice(button, invoiceNumber) {
   button.addEventListener("click", function () {
-    fetch(
-      baseEndpointUrl +
-        "/invoice/delete-invoice?invoiceNumber=" +
-        invoiceNumber,
-      {
-        method: "DELETE",
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        clearTable();
-        initTableInvoice();
-        printNotif(data.code, data.message, data.exception);
-      });
+    fetchDeleteInvoice(invoiceNumber);
   });
 }
 
@@ -218,5 +201,173 @@ function clearTable() {
 
   while (tableFoot.firstChild) {
     tableFoot.removeChild(tableFoot.lastChild);
+  }
+}
+
+document.getElementById("sendExcel").addEventListener("click", function () {
+  var rangeFrom = document.querySelector("input[name=rangeFrom]").value;
+  var rangeTo = document.querySelector("input[name=rangeTo]").value;
+
+  if (rangeFrom == "" || rangeTo == "") {
+    printNotif(500, "", "Range From & To can't be null");
+  } else {
+    fetchDataSendExcel(rangeFrom, rangeTo);
+  }
+});
+
+async function fetchDataSendExcel(rangeFrom, rangeTo) {
+  document.getElementById("loading-box").style.display = "block";
+
+  try {
+    const response = await fetch(
+      baseEndpointUrl +
+        "/invoice/sendExcel?rangeFrom=" +
+        rangeFrom +
+        "&rangeTo=" +
+        rangeTo,
+      {
+        method: "GET",
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.data == 200) {
+      printNotif(data.code, data.message, data.exception);
+    } else {
+      printNotif(data.code, data.message, data.exception);
+    }
+    document.getElementById("loading-box").style.display = "none";
+  } catch (error) {
+    document.getElementById("loading-box").style.display = "none";
+    console.log("Error hit API L", error);
+  }
+}
+
+async function fetchSearchInvoice(obj) {
+  document.getElementById("loading-box").style.display = "block";
+
+  try {
+    const response = await fetch(baseEndpointUrl + "/invoice/list", {
+      method: "POST",
+      body: JSON.stringify(obj),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    clearTable();
+    if (data.data.detail.length > 0) {
+      cetakTableInvoice(data.data.detail, data.data.page, data.data.totalPage);
+    } else {
+      errorGetDataTable();
+    }
+    document.getElementById("loading-box").style.display = "none";
+  } catch (error) {
+    document.getElementById("loading-box").style.display = "none";
+    errorGetDataTable();
+    console.log("Error hit API ", error);
+  }
+}
+
+async function fetchPagingInvoice(objPage) {
+  document.getElementById("loading-box").style.display = "block";
+
+  try {
+    var response = await fetch(baseEndpointUrl + "/invoice/list", {
+      method: "POST",
+      body: JSON.stringify(objPage),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    var data = await response.json();
+
+    clearTable();
+    cetakTableInvoice(data.data.detail, data.data.page, data.data.totalPage);
+    document.getElementById("loading-box").style.display = "none";
+  } catch (error) {
+    document.getElementById("loading-box").style.display = "none";
+    console.log("Error consume API paging", error);
+    printNotif(400, "Error consumes API Paging");
+  }
+}
+
+async function fetchReminderInvoice(btn, invoiceNumber) {
+  try {
+    document.getElementById("loading-box").style.display = "block";
+
+    const response = await fetch(
+      baseEndpointUrl + "/invoice/reminder?invoiceNumber=" + invoiceNumber,
+      {
+        method: "GET",
+      }
+    );
+    const data = await response.json();
+
+    if ((data.code = 200)) {
+      printNotif(data.code, data.message, data.exception);
+      btn.style.pointerEvents = "none";
+      btn.style.display = "none";
+    } else {
+      printNotif(data.code, data.message, data.exception);
+    }
+    document.getElementById("loading-box").style.display = "none";
+  } catch (error) {
+    document.getElementById("loading-box").style.display = "none";
+    console.log("Error consume API ", error);
+  }
+}
+
+async function fetchDeleteInvoice(invoiceNumber) {
+  document.getElementById("loading-box").style.display = "block";
+  try {
+    var response = await fetch(
+      baseEndpointUrl +
+        "/invoice/delete-invoice?invoiceNumber=" +
+        invoiceNumber,
+      {
+        method: "DELETE",
+      }
+    );
+
+    var data = await response.json();
+
+    clearTable();
+    fetchTableInvoice();
+    printNotif(data.code, data.message, data.exception);
+
+    document.getElementById("loading-box").style.display = "none";
+  } catch (error) {
+    document.getElementById("loading-box").style.display = "none";
+    console.log("Error delte invoice ", error);
+    printNotif(500, "Error delete invoice", "Error delete invoice");
+  }
+}
+
+async function fetchTableInvoice() {
+  var obj = {
+    search: "",
+    page: 1,
+    rangeFrom: "",
+    rangeTo: "",
+  };
+  try {
+    document.getElementById("loading-box").style.display = "block";
+    const response = await fetch(baseEndpointUrl + "/invoice/list", {
+      method: "POST",
+      body: JSON.stringify(obj),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+
+    document.getElementById("loading-box").style.display = "none";
+
+    cetakTableInvoice(data.data.detail, data.data.page, data.data.totalPage);
+  } catch (error) {
+    errorGetDataTable();
+    document.getElementById("loading-box").style.display = "none";
+    console.log("Error fetch data with message : ", error);
   }
 }

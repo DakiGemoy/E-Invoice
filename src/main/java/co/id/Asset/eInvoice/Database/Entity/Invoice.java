@@ -39,6 +39,12 @@ public class Invoice {
     @Column(name = "is_draft")
     private Boolean isDraft;
 
+    @Column(name = "sendToExcel")
+    private Boolean sendToExcel;
+
+    @Column(name = "is_reminder")
+    private Boolean isReminder;
+
     @Column(name = "created_by")
     private String createdBy;
 

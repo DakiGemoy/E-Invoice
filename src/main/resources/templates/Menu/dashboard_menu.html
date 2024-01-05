@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>E-Invoice</title>
     <link rel="stylesheet" th:href="@{/resources/css/base-layout-style.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/font-awesome.min.css}">
     <script th:src="@{/resources/scripts/dashboard_script.js}" defer></script>
 </head>
 <body>
@@ -13,8 +14,14 @@
             <header th:replace="~{layout/base-layout :: header}"></header>
             <main>
                 <form action="#" method="GET" class="search-bar" id="search-invoice">
-                    <input type="text" name="search" placeholder="Search" />
+                    <input type="text" name="Search" placeholder="Search" />
+                    <label>From</label>
+                    <input type="date" name="rangeFrom" placeholder="From" />
+                    <label>To</label>
+                    <input type="date" name="rangeTo" placeholder="To" />
+
                     <button type="submit" class="green-button">Search</button>
+                    <a id="sendExcel" class="yellow-button">Send Excel</a>
                     <a th:href="@{/invoice/detail}" class="blue-button">Create</a>
                 </form>
 
@@ -27,19 +34,22 @@
                             <td>Due Date</td>
                             <td>Is Draft</td>
                             <td>Amount</td>
-                            <td colspan="2">Action</td>
+                            <td colspan="3">Action</td>
                         </tr>
                         </thead>
                         <tbody></tbody>
                         <tfoot>
                         <tr>
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
                         </tr>
                         </tfoot>
                     </table>
                 </div>
                 <div id="notif" class="notif">
                     <p>Error</p>
+                </div>
+                <div class="loading-container" id="loading-box">
+                    <div class="loading"></div>
                 </div>
             </main>
         </div>
